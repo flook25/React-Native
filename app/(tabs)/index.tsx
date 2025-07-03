@@ -1,195 +1,67 @@
-import React from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  useWindowDimensions,
-  Platform,
-  SafeAreaView,
-  Image
-} from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
+import AlertExample from "@/components/example/AlertExample"; // Fixed typo
+import CustomerAlertExample from "../../components/example/CustomAlertExample"; // Fixed typo
 
-const useResponsive = () => {
-  const { width, height } = useWindowDimensions();
-  const isSmallScreen = width < 375;
-  const isMediumScreen = width >= 375 && width < 768;
-  const isLargeScreen = width >= 768;
-  const isLandscape = width > height;
+const products = Array.from({ length: 20 }, (_, i) => ({
+  id: i + 1,
+  name: 'สินค้า' + (i + 1) // Corrected name
+}));
 
-  const getResponsiveSize = (small: number, medium: number, large: number) => {
-    if (isSmallScreen) return small;
-    if (isMediumScreen) return medium;
-    return large;
-  };
+export default function ProductGrid() {
+  const { width } = useWindowDimensions();
 
-  const getResponsiveSpacing = (multiplier: number = 1) => {
-    return getResponsiveSize(8 * multiplier, 12 * multiplier, 16 * multiplier);
-  };
+  let columns = 1;
+  if (width >= 1200) columns = 8;
+  else if (width >= 992) columns = 6;
+  else if (width >= 768) columns = 3;
 
-  return {
-    width,
-    height,
-    isSmallScreen,
-    isMediumScreen,
-    isLargeScreen,
-    isLandscape,
-    getResponsiveSize,
-    getResponsiveSpacing
-  };
-};
-
-export default function ResponsiveScreen() {
-  const {
-    width,
-    height,
-    isSmallScreen,
-    isMediumScreen,
-    isLargeScreen,
-    getResponsiveSpacing
-  } = useResponsive();
-
-  const deviceType = isSmallScreen
-    ? 'Small'
-    : isMediumScreen
-    ? 'Medium'
-    : isLargeScreen
-    ? 'Large'
-    : 'Unknown';
-
-  // Colorful grid item backgrounds
-  const gridColors = ['#FFB703', '#219EBC', '#8ECAE6', '#FF6F61'];
+  const gap = 8;
+  const itemWidth = (width - gap * (columns - 1) - 16) / columns;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.gradientBackground}>
-        <View style={styles.container}>
-          <Text style={styles.title}>🌈 Responsive Demo</Text>
-        </View>
+    <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+      {/* Example alert components */}
+      <AlertExample />
+      <CustomerAlertExample />
 
-        <View style={styles.gridContainer}>
-          {[1, 2, 3, 4].map((item, idx) => (
-            <View
-              key={item}
-              style={[
-                styles.gridItem,
-                {
-                  width: isSmallScreen
-                    ? '48%'
-                    : isMediumScreen
-                    ? '31%'
-                    : '23%',
-                  margin: getResponsiveSpacing(0.5),
-                  backgroundColor: gridColors[idx % gridColors.length],
-                  shadowColor: gridColors[idx % gridColors.length],
-                }
-              ]}
-            >
-              <Text style={styles.gridText}>Item {item}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.imageContainer}>
-          <Image
-            source={require('../../assets/images/react-logo.png')}
-            style={styles.imagePlaceHolder}
-            resizeMode="contain"
-          />
-          <Text style={styles.imageLabel}>🚀 React Logo</Text>
-        </View>
-
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>Screen Width: <Text style={styles.infoValue}>{width}</Text></Text>
-          <Text style={styles.infoText}>Screen Height: <Text style={styles.infoValue}>{height}</Text></Text>
-          <Text style={styles.infoText}>Device Type: <Text style={styles.infoValue}>{deviceType}</Text></Text>
-          <Text style={styles.infoText}>Platform: <Text style={styles.infoValue}>{Platform.OS}</Text></Text>
-        </View>
+      {/* Render product items in grid */}
+      <View style={styles.gridContainer}>
+        {products.map(product => (
+          <View
+            key={product.id}
+            style={[
+              styles.productItem,
+              { width: itemWidth, marginBottom: gap },
+            ]}
+          >
+            <Text>{product.name}</Text>
+          </View>
+        ))}
       </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  scrollView: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
-  gradientBackground: {
-    flex: 1,
-    backgroundColor: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)', // fallback for platforms without gradients
-    // For Expo/React Native, use expo-linear-gradient for real gradients
-  },
-  container: {
-    padding: 20
-  },
-  title: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    fontSize: 26,
-    color: '#FF6F61',
-    letterSpacing: 1
+  scrollViewContent: {
+    padding: 16,
   },
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20
+    justifyContent: 'flex-start',
   },
-  gridItem: {
-    borderRadius: 12,
-    padding: 18,
-    marginBottom: 12,
-    alignItems: 'center',
+  productItem: {
+    height: 100,
+    backgroundColor: '#f0f0f0',
+    marginRight: 8, // spacing between items
+    padding: 8,
     justifyContent: 'center',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 4
+    alignItems: 'center',
   },
-  gridText: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold'
-  },
-  imageContainer: {
-    marginBottom: 20,
-    alignItems: 'center'
-  },
-  imagePlaceHolder: {
-    width: 220,
-    height: 120,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 16,
-    shadowColor: '#219EBC',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6
-  },
-  imageLabel: {
-    textAlign: 'center',
-    marginTop: 10,
-    fontSize: 18,
-    color: '#219EBC',
-    fontWeight: 'bold'
-  },
-  infoContainer: {
-    backgroundColor: '#fff3e6',
-    padding: 18,
-    borderRadius: 12,
-    marginHorizontal: 10,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#FFB703'
-  },
-  infoText: {
-    fontSize: 15,
-    marginBottom: 6,
-    color: '#333'
-  },
-  infoValue: {
-    color: '#FF6F61',
-    fontWeight: 'bold'
-  }
 });
